@@ -1,0 +1,41 @@
+#!/bin/sh
+set -e
+
+if [ -z "${1}" ]; then
+	echo usage: $0 package.tbz2
+        echo example: $0 ssh-mtconfig-4.0.4.tbz2
+        exit
+fi
+
+function banner {
+echo "================================================================"
+echo "$1"
+echo "================================================================"
+}
+
+banner "Create the workdir, tbz2file"
+TBZ2FILE="$1"
+TBZ2FILE_XPAK="`echo $1 | sed -e 's/\.tbz2/\.xpak/g'`"
+WORKDIR="/tmp/`date +%Y%m%d_%H%M%S`"
+echo "TBZ2FILE="$TBZ2FILE
+echo "TBZ2FILE_XPAK="$TBZ2FILE_XPAK
+echo "WORKDIR="$WORKDIR
+mkdir -pv ${WORKDIR}
+
+banner "Copying the file to the workdir"
+cp -v ${TBZ2FILE} ${WORKDIR}
+
+banner "Uncompressing the tbz2file"
+cd ${WORKDIR}
+qtbz2 -v -x ${TBZ2FILE}
+PF="`qxpak -O -x ${TBZ2FILE_XPAK} PF`"
+CATEGORY="`qxpak -O -x ${TBZ2FILE_XPAK} CATEGORY`"
+echo "PF="$PF
+echo "CATEGORY="$CATEGORY
+echo "TBZ2FILE_XPAK="$TBZ2FILE_XPAK
+
+banner "Emerging $TBZ2FILE"
+MYPKGDIR="${WORKDIR}/All"
+mkdir -pv "${MYPKGDIR}"
+cp -v "${TBZ2FILE}" "${MYPKGDIR}"
+PKGDIR=${WORKDIR} emerge -K "=${CATEGORY}/${PF}"

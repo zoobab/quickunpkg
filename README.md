@@ -1,7 +1,5 @@
-USAGE
-=====
-
-$ quickunpkg package.tbz2
+EXAMPLE
+=======
 
 $ quickunpkg portage-utils-0.10.tbz2
 
